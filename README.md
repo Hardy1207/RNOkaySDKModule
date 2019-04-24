@@ -67,8 +67,31 @@ allprojects {
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 ````
+##### 8) Added databinding and multidex for android: 
+---
+* open Project_Name/android/app/build.gradle
+```sh
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
-##### 8) Install react-native Firebase:
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    // Begin Added DataBinding
+    dataBinding {
+        enabled = true
+    }
+    // End
+    defaultConfig {
+       ...
+       multiDexEnabled true // Added this line
+    }
+    ...
+}
+```
+
+##### 9) Install react-native Firebase:
 * https://rnfirebase.io/docs/v5.x.x/installation/initial-setup
 * https://rnfirebase.io/docs/v5.x.x/installation/android
 * https://rnfirebase.io/docs/v5.x.x/messaging/android
@@ -90,23 +113,31 @@ allprojects {
 ```
 * isEnrolled()
 * isReadyForAuthorization()
-* authorization(SpaAuthorizationData)
+* authorization(SpaAuthorizationData) // Called after receive message from firebase
 ```sh
-    firebase.iid().get()
-      .then(instanceID => {
-        RNOkaySdk.authorization({
-          SpaAuthorizationData: {
-            sessionId: sessionId, // Received from firebase messaging
-            appPNS: instanceID,
-            pageTheme: { // Page Theme customization, if you don't want customization: pageTheme: null
-              "actionBarBackgroundColor": 5, 
-              "actionBarTextColor": 10,
-              "buttonTextColor": 15,
-            }
-          }
-        }).then(response => console.log(response));
-      })
-      .catch(error => console.log(error));
+    firebase.messaging().onMessage(message => {
+      startAuthorization(message.data.sessionId);
+    });
+```
+```sh
+    startAuthorization = (sessionId) => {
+        firebase.iid().get()
+          .then(instanceID => {
+            RNOkaySdk.authorization({
+              SpaAuthorizationData: {
+                sessionId: sessionId, // Received from firebase messaging
+                appPNS: instanceID,
+                pageTheme: { // Page Theme customization, if you don't want customization: pageTheme: null
+                    actionBarTitle: "YOUR_ACTION_BAR_TITLE"
+                    actionBarBackgroundColor: 5, 
+                    actionBarTextColor: 10,
+                    buttonTextColor: 15,
+                }
+              }
+            }).then(response => console.log(response));
+          })
+          .catch(error => console.log(error));
+    }
 ```
 * enrollProcedure(SpaEnrollData)
 ```sh
@@ -117,10 +148,11 @@ allprojects {
             appPns: instanceID,
             pubPss: pubPssBase64, // public Pss key https://github.com/Okaythis/okay-example/wiki/Mobile-Client-Settings
             installationId: "9990", // installationId https://github.com/Okaythis/okay-example/wiki/Mobile-Client-Settings
-            pageTheme: { // Page Theme customization, if you don't want customization: pageTheme: null
-              "actionBarBackgroundColor": 5, 
-              "actionBarTextColor": 10,
-              "buttonTextColor": 15,
+            pageTheme: { // Page Theme customization, if you don't want customization: pageTheme: null. All property with color is int.
+               actionBarTitle: "YOUR_ACTION_BAR_TITLE"
+               actionBarBackgroundColor: 5, 
+               actionBarTextColor: 10,
+               buttonTextColor: 15,
             }
           }
         }).then(response => console.log(response));
