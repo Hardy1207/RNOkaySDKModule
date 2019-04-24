@@ -72,3 +72,58 @@ allprojects {
 * https://rnfirebase.io/docs/v5.x.x/installation/initial-setup
 * https://rnfirebase.io/docs/v5.x.x/installation/android
 * https://rnfirebase.io/docs/v5.x.x/messaging/android
+
+### Usage
+
+##### Allowed methods:
+* permissionRequest()
+```sh 
+     RNOkaySdk.permissionRequest().then(response => console.log(response)); // Response: Array or required permissions
+```
+* init(endpoint) // PSSAddress for example 'http://protdemo.demohoster.com'
+```sh 
+    CompontentDidMount() {
+        RNOkaySdk.init("http://protdemo.demohoster.com").then(response =>
+            ...
+        );
+    }
+```
+* isEnrolled()
+* isReadyForAuthorization()
+* authorization(SpaAuthorizationData)
+```sh
+    firebase.iid().get()
+      .then(instanceID => {
+        RNOkaySdk.authorization({
+          SpaAuthorizationData: {
+            sessionId: sessionId, // Received from firebase messaging
+            appPNS: instanceID,
+            pageTheme: { // Page Theme customization, if you don't want customization: pageTheme: null
+              "actionBarBackgroundColor": 5, 
+              "actionBarTextColor": 10,
+              "buttonTextColor": 15,
+            }
+          }
+        }).then(response => console.log(response));
+      })
+      .catch(error => console.log(error));
+```
+* enrollProcedure(SpaEnrollData)
+```sh
+    firebase.iid().get()
+      .then(instanceID => {
+        RNOkaySdk.enrollProcedure({
+          SpaEnrollData: {
+            appPns: instanceID,
+            pubPss: pubPssBase64, // public Pss key https://github.com/Okaythis/okay-example/wiki/Mobile-Client-Settings
+            installationId: "9990", // installationId https://github.com/Okaythis/okay-example/wiki/Mobile-Client-Settings
+            pageTheme: { // Page Theme customization, if you don't want customization: pageTheme: null
+              "actionBarBackgroundColor": 5, 
+              "actionBarTextColor": 10,
+              "buttonTextColor": 15,
+            }
+          }
+        }).then(response => console.log(response));
+      })
+      .catch(error => console.log(error));
+```
